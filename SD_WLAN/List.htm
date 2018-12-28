@@ -4,16 +4,17 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="copyright" content="(c) 2013, Fixstars Corporation. All rights reserved.">
 	<meta name="author" content="Junichi Kitano">
 	<meta name="author" content="StephanR">
 	<script type="text/javascript" src="/SD_WLAN/js/jquery.min.js"></script>
 	<script type="text/javascript" src="/SD_WLAN/js/bootstrap.min.js"></script>
 	<script type="text/javascript" src="/SD_WLAN/js/bootstrap-notify.min.js"></script>
-	<script type="text/javascript" src="/SD_WLAN/js/dropzone.min.js"></script>
+	<script type="text/javascript" src="/SD_WLAN/js/jquery.ui.widget.js"></script>
+	<script type="text/javascript" src="/SD_WLAN/js/jquery.fileupload.js"></script>
+	<script type="text/javascript" src="/SD_WLAN/js/jquery.iframe-transport.js"></script>
 	<script type="text/javascript" src="/SD_WLAN/js/main.js"></script>
 	<link href="/SD_WLAN/css/bootstrap.min.css" rel="stylesheet">
-	<link href="/SD_WLAN/css/dropzone.min.css" rel="stylesheet">
+	<link href="/SD_WLAN/css/jquery.fileupload.css" rel="stylesheet">
 	<link href="/SD_WLAN/css/animate.min.css" rel="stylesheet">
 	<link href="/SD_WLAN/css/main.css" rel="stylesheet">
 </head>
@@ -48,16 +49,13 @@
 		</tbody>
 	</table>
 
-	<div class="panel panel-default">
-		<div class="panel-heading">
-			<h3 class="panel-title">File Upload</h3>
-		</div>
-		<div class="panel-body">
-			<div id="dropzone" class="dropzone">
-			</div>
-			<strong>Note:</strong> Before upload the card will change into write-protected mode to prevent filesystem errors. Reconnect or restart the card to re-enable wirting from host/device. 
-		</div>
-	</div>
+	<span class="btn btn-success fileinput-button">
+		<i class="glyphicon glyphicon-plus"></i>
+		<span>Upload file ...</span>
+		<!-- The file input field used as target for the file upload widget -->
+		<input id="fileupload" type="file" name="file">
+	</span><br/>
+	<strong>Note:</strong> Before upload the card will change into write-protected mode to prevent filesystem errors. Reconnect or restart the card to re-enable wirting from host/device.
 </div> <!-- /container -->
 
 <div class="modal fade" tabindex="-1" role="dialog" id="modalDelete">

@@ -2,7 +2,7 @@
  *  main.js
  *
  *  Created by Junichi Kitano, Fixstars Corporation on 2013/05/15.
- * 
+ *
  *  Copyright (c) 2013, TOSHIBA CORPORATION
  *  All rights reserved.
  *  Released under the BSD 2-Clause license.
@@ -15,7 +15,7 @@ function isV1(wlansd) {
 	if ( wlansd.length == undefined || wlansd.length == 0 ) {
 		// List is empty so the card version is not detectable. Assumes as V2.
 		return false;
-	} else if ( wlansd[0].length != undefined ) {
+	} else if ( wlansd[0].length !== undefined ) {
 		// Each row in the list is array. V1.
 		return true;
 	} else {
@@ -48,10 +48,10 @@ function cmptime(a, b) {
 function showFileList(path) {
 	// Clear box.
 	Capacity();
-	
+
 	if ( path == "" || path == "/" ) {
 		$("#path").html(
-			$('<li></li>').append( 
+			$('<li></li>').append(
 				$( '<a>Home</a>' ).click( function(){
 					getFileList('/', true);
 				})
@@ -72,7 +72,7 @@ function showFileList(path) {
 			);
 		} );
 	}
-	
+
 	$("#list").html('');
 	// Output a link to the parent directory if it is not the root directory.
 	//$('<td><a href="javascript:void(0)" class="dir"><img src=/SD_WLAN/img/return.png width=15></a></td><td colspan="4"><a href="javascript:void(0)" class="dir">..</a></td>')
@@ -97,7 +97,7 @@ function showFileList(path) {
 			//fileicon = '<img src=/SD_WLAN/img/dir.png  width=15>';
 			fileicon = '<span class="glyphicon glyphicon-folder-open" />&nbsp;&nbsp;';
 			item = $('<td colspan="4"></td>').append( fileicon, filelink.append( caption  ) );
-		} 
+		}
 		// Append a directory to the end of the list.
 		$("#list").append(
 			fileobj.append(
@@ -124,11 +124,11 @@ function showFileList(path) {
 		var filedate = '-';
 		if ( file["fdate"] !== 0 ) {
 			var fd = new Date(
-				((file["fdate"] & 0xfe00) >>> 9) + 1980, 
-				(file["fdate"] & 0x1e0) >> 5, 
-				(file["fdate"] & 0x1f), 
-				(file["ftime"] & 0xf800) >>> 11, 
-				(file["ftime"] & 0x7c0) >> 5, 
+				((file["fdate"] & 0xfe00) >>> 9) + 1980,
+				((file["fdate"] & 0x1e0) >> 5) - 1,
+				(file["fdate"] & 0x1f),
+				(file["ftime"] & 0xf800) >>> 11,
+				(file["ftime"] & 0x7c0) >> 5,
 				(file["ftime"] & 0x1f) * 2
 			);
 			filedate = fd.toLocaleString();
@@ -138,7 +138,7 @@ function showFileList(path) {
 			filelink.addClass("file").attr('href', file["r_uri"] + '/' + file["fname"]).attr("target","_blank");
 			filedel=' &nbsp; <span class=\'glyphicon glyphicon-remove\' style=\'cursor:pointer;\' data-path=\'' + file["r_uri"] + '\' data-name=\'' + file["fname"] + '\' data-toggle="modal" data-target="#modalDelete" />';
 			filedownload='<span class=\'glyphicon glyphicon-download-alt\' style=\'cursor:pointer;\' onClick=\'window.open(\"'+file["r_uri"] + '/' + file["fname"]+'\");\' />';
-			
+
 			item = '<td>' + fileicon + caption + '</td><td>' + fileSize( filesize ) + '</td><td>' + filedate + '</td><td>' + filedownload + '&nbsp;'+ filedel + '</td>';
 		}
 		// Append a file entry or directory to the end of the list.
@@ -187,7 +187,7 @@ function getFileList(dir, abs) {
 		convertFileList(wlansd);
 		// Sort by date and time.
 		wlansd.sort(cmptime);
-		
+
 		// Show
 		showFileList(currentPath);
 	});
@@ -205,10 +205,10 @@ function Capacity() {
 		var totalfree = Number(snotused) * Number(bpersec);
 		var totalcard = Number(nbtotal) * Number(bpersec);
 		var percentused = Number(totalfree/totalfree).toFixed(2);
-	
+
 		var prog = $('<div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>');
 		prog.attr('aria-valuenow', percentused ).width( percentused+"%");
-		
+
 		$("#Capacity").html('Card Free : '+ fileSize(totalfree) + ' / ' + fileSize(totalcard) + ' Used: '+ percentused + '%' );
 		$("#Capacity").append(
 			$('<div class="progress"></div>').append(
@@ -216,7 +216,7 @@ function Capacity() {
 			)
 		);
 	});
-	
+
 	return false;
 }
 
@@ -233,7 +233,7 @@ function getCurrentFatTime() {
 }
 
 function fileSize(bytes) {
-    var exp = Math.min( Math.log(bytes) / Math.log(1024) | 0, 8);
+	var exp = Math.min( Math.log(bytes) / Math.log(1024) | 0, 8);
 	if ( exp == 0 ) {
 		return bytes.toFixed(0) + ' bytes';
 	} else {
@@ -252,58 +252,58 @@ $(function() {
 	// Register onClick handler for <a class="dir">
 	$(document).on("click","a.dir",function() {
 		getFileList(this.text);
-	}); 
+	});
 
-	$("div#dropzone").dropzone({
-		url: "/upload.cgi",
-		paramName: "file",
-		parallelUploads: 1,
-		filesizeBase: 1024,
-		createImageThumbnails: false,
-		addRemoveLinks: false,
-		accept: function(file, done) {
-			// Set to readonly / set current time
-			$.get("/upload.cgi?WRITEPROTECT=ON&UPDIR=" + makePath(".") + "&FTIME=" + getCurrentFatTime(), function(html) {
-				done();
+	$('#fileupload').fileupload({
+		url: '/upload.cgi',
+		type: 'POST',
+		dataType: 'text',
+		singleFileUploads: true,
+		sequentialUploads: true,
+		limitConcurrentUploads: 1,
+		autoUpload: false,
+		add: function (e, data) {
+			data.process().done(function () {
+				//$.get("/upload.cgi?WRITEPROTECT=ON&UPDIR=" + makePath(".") + "&FTIME=" + getCurrentFatTime(), function(html) {
+					data.context = $.notify({
+						title: 'Uploading ...',
+						message: data.files[0].name
+					}, {
+						allow_dismiss: false,
+						showProgressbar: true,
+						delay: 0
+					});
+					data.submit();
+				//});
 			});
 		},
-		init: function() {
-			//this.on("addedfile", function(file) { 
-			//	console.log( "Added file: " + file ); 
-			//});
-			this.on("complete", function(file) {
-				//console.log( "Complete file: ", file );
-				this.removeFile(file);
-				getFileList(".");
-			});
-			//this.on("uploadprogress", function(file, progress, bytesSent) {
-			//	console.log( "progress " + progress + "% " + bytesSent + "b", file );
-			//});
-			this.on("error", function(file, errorMessage) {
-				//console.log( "error msg: " + errorMessage, file  );
-				$.notify({
-					title: 'File upload failed for ' + file.name,
-					message: '<br/>Error: ' + errorMessage
-				},{
-					type: 'danger'
+		done: function (e, data) {
+			// refresh file listing
+			getFileList(".");
+		},
+		always: function (e, data) {
+			var msg = 'Upload of ' + data.files[0].name;
+			if ( data.result && data.result.indexOf( 'Success' ) != -1 ) {
+				data.context.update({
+					message: msg + ' successful.',
+					type: 'success',
+					progress: 100,
 				});
-			});
-			this.on("canceled", function(file, errorMessage) {
-				//console.log( "canceled msg: " + errorMessage, file );
-				$.notify({
-					title: 'File upload canceled !',
-					message: '<br/>' + file.name
-				},{
-					type: 'warning'
+			} else {
+				data.context.update({
+					title: msg + ' failed.',
+					type: 'danger',
+					progress: 0,
 				});
-			});
-			this.on("success", function(file, errorMessage) {
-				//console.log( "success", file );
-				$.notify('File ' + file.name + ' uploaded');
-			});
+			}
+			$(data.context).delay(2000).queue(data.context.close);
+		},
+		progress: function (e, data) {
+			var progress = parseInt(data.loaded / data.total * 100, 10);
+			data.context.update({'progress': progress});
 		}
-	});
-	
+	}).prop('disabled', !$.support.fileInput).parent().addClass($.support.fileInput ? undefined : 'disabled');
+
 	$('#modalDelete').on('show.bs.modal', function (event) {
 		var btn = $(event.relatedTarget);
 		var name = btn.data('name');
@@ -313,7 +313,7 @@ $(function() {
 		modal.find('button.btn-primary').data('name', name).data('path', path);
 	});
 	$('#modalDelete button.btn-primary').on('click', function(event) {
-		event.preventDefault(); 
+		event.preventDefault();
 		var btn = $(event.currentTarget);
 		var name = btn.data('name');
 		var path = btn.data('path');
@@ -334,9 +334,9 @@ $(function() {
 				getFileList(".");
 			}
 		});
-		
+
 	});
-	
+
 	$.notifyDefaults({
 		type: 'success',
 		animate: {
@@ -345,4 +345,3 @@ $(function() {
 		}
 	});
 });
-Dropzone.autoDiscover = false;

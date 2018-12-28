@@ -264,17 +264,16 @@ $(function() {
 		autoUpload: false,
 		add: function (e, data) {
 			data.process().done(function () {
-				//$.get("/upload.cgi?WRITEPROTECT=ON&UPDIR=" + makePath(".") + "&FTIME=" + getCurrentFatTime(), function(html) {
+				$.get("/upload.cgi?WRITEPROTECT=ON&UPDIR=" + makePath(".") + "&FTIME=" + getCurrentFatTime(), function(html) {
 					data.context = $.notify({
-						title: 'Uploading ...',
-						message: data.files[0].name
+						message: 'Uploading ' + data.files[0].name + ' ...'
 					}, {
 						allow_dismiss: false,
 						showProgressbar: true,
 						delay: 0
 					});
 					data.submit();
-				//});
+				});
 			});
 		},
 		done: function (e, data) {

@@ -2,6 +2,7 @@ BSD 2-Clause License
 
 Copyright (c) 2013, TOSHIBA CORPORATION
 Copyright (c) 2017, Stephan Reichhelm
+Copyright (c) 2020, Tomasz Momot
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

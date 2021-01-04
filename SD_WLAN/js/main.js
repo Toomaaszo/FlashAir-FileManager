@@ -91,12 +91,16 @@ function showFileList(path) {
 		var caption = file["fname"] ;
 		var fileicon = '<span class="glyphicon glyphicon-file" />';
 		var fileobj = $("<tr></tr>");
+		var filecheckbox = '';
 		var item='';
 		if ( file["attr"] & 0x10 ) {
 			filelink.addClass("dir");
 			//fileicon = '<img src=/SD_WLAN/img/dir.png  width=15>';
 			fileicon = '<span class="glyphicon glyphicon-folder-open" />&nbsp;&nbsp;';
-			item = $('<td></td>').add($('<td colspan="4"></td>').append( fileicon, filelink.append(caption)));
+			filedel='<td><span class=\'glyphicon glyphicon-remove\' style=\'cursor:pointer;\' data-path=\'' + file["r_uri"] + '\' data-name=\'' + file["fname"] + '\' data-toggle="modal" data-target="#modalDelete" /></td>';
+			filecheckbox='<td><label><input type=\'checkbox\' data-path=\'' + file["r_uri"] + '\' data-name=\'' + file["fname"] + '\' /></label></td>';
+
+			item = $(filecheckbox).add($('<td colspan="4"></td>').append(fileicon, filelink.append(caption)).add(filedel));
 		}
 		// Append a directory to the end of the list.
 		$("#list").append(
@@ -137,11 +141,11 @@ function showFileList(path) {
 		var item='';
 		if ( ! (file["attr"] & 0x10) ) {
 			filelink.addClass("file").attr('href', file["r_uri"] + '/' + file["fname"]).attr("target","_blank");
-			filedel=' &nbsp; <span class=\'glyphicon glyphicon-remove\' style=\'cursor:pointer;\' data-path=\'' + file["r_uri"] + '\' data-name=\'' + file["fname"] + '\' data-toggle="modal" data-target="#modalDelete" />';
+			filedel='<span class=\'glyphicon glyphicon-remove\' style=\'cursor:pointer;\' data-path=\'' + file["r_uri"] + '\' data-name=\'' + file["fname"] + '\' data-toggle="modal" data-target="#modalDelete" />';
 			filedownload='<span class=\'glyphicon glyphicon-download-alt\' style=\'cursor:pointer;\' onClick=\'window.open(\"'+file["r_uri"] + '/' + file["fname"]+'\");\' />';
 			filecheckbox='<label><input type=\'checkbox\' data-path=\'' + file["r_uri"] + '\' data-name=\'' + file["fname"] + '\' /></label>';
 
-			item = '<td>' + filecheckbox + '</td><td>' + fileicon + caption + '</td><td>' + fileSize( filesize ) + '</td><td>' + filedate + '</td><td>' + filedownload + '&nbsp;'+ filedel + '</td>';
+			item = '<td>' + filecheckbox + '</td><td>' + fileicon + caption + '</td><td>' + fileSize( filesize ) + '</td><td>' + filedate + '</td><td>' + filedownload + '</td><td>'+ filedel + '</td>';
 		}
 		// Append a file entry or directory to the end of the list.
 		$("#list").append(
@@ -189,6 +193,8 @@ function getFileList(dir, abs) {
 		convertFileList(wlansd);
 		// Sort by date and time.
 		wlansd.sort(cmptime);
+
+		$('#selectAll').checked = false;
 
 		// Show
 		showFileList(currentPath);
@@ -342,7 +348,7 @@ $(function() {
 				url: "/upload.cgi?DEL=" + file.path + '/' + file.name,
 				success: function(html) {
 					html2="*"+html+"*";
-					if ( html2.indexOf("SUCCESS") ) {
+					if ( html2.indexOf("SUCCESS") == 1 ) {
 						$.notify({
 							title: 'File deleted successful',
 							message: '<br/>' + file.name
@@ -380,7 +386,7 @@ $(function() {
 		$('#modalDelete').modal('hide');
 		$.get( "/upload.cgi?DEL=" + path + '/' + name , function(html) {
 			html2="*"+html+"*";
-			if ( html2.indexOf("SUCCESS") ) {
+			if ( html2.indexOf("SUCCESS") == 1 ) {
 				$.notify('File deleted successful');
 				getFileList(".");
 			}else{

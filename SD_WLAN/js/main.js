@@ -403,6 +403,29 @@ $(function() {
 
 	});
 
+	$('#modalCreateDir button.btn-primary').on('click', function(event) {
+		var modal = $('#modalCreateDir');
+		modal.modal('hide');
+		
+		var dirName = modal.find('#dirName').val();
+		$.get( "/upload.cgi?UPDIR=" + makePath(".") + "/" + dirName + "&FTIME=" + getCurrentFatTime() , function(html) {
+			html2="*"+html+"*";
+			if ( html2.indexOf("SUCCESS") == 1 ) {
+				$.notify('Directory created');
+				getFileList(".");
+			}else{
+				$.notify({
+					title: 'Failed to create directory !',
+					message: '<br/>' + name
+				},{
+					type: 'danger'
+				});
+				console.log("delete error");
+				getFileList(".");
+			}
+		});
+	});
+
 	$.notifyDefaults({
 		type: 'success',
 		animate: {

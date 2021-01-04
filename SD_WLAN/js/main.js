@@ -96,12 +96,12 @@ function showFileList(path) {
 			filelink.addClass("dir");
 			//fileicon = '<img src=/SD_WLAN/img/dir.png  width=15>';
 			fileicon = '<span class="glyphicon glyphicon-folder-open" />&nbsp;&nbsp;';
-			item = $('<td colspan="4"></td>').append( fileicon, filelink.append( caption  ) );
+			item = $('<td></td>').add($('<td colspan="4"></td>').append( fileicon, filelink.append(caption)));
 		}
 		// Append a directory to the end of the list.
 		$("#list").append(
 			fileobj.append(
-				item
+				 item
 			)
 		);
 	});
@@ -118,6 +118,7 @@ function showFileList(path) {
 		var caption = file["fname"] ;
 		var fileicon = '<span class="glyphicon glyphicon-file" />&nbsp;&nbsp;';
 		var filedownload='';
+		var filecheckbox='';
 		var fileobj = $("<tr></tr>");
 		var filesize = file["fsize"];
 		var filesizeunit='Byte';
@@ -138,8 +139,9 @@ function showFileList(path) {
 			filelink.addClass("file").attr('href', file["r_uri"] + '/' + file["fname"]).attr("target","_blank");
 			filedel=' &nbsp; <span class=\'glyphicon glyphicon-remove\' style=\'cursor:pointer;\' data-path=\'' + file["r_uri"] + '\' data-name=\'' + file["fname"] + '\' data-toggle="modal" data-target="#modalDelete" />';
 			filedownload='<span class=\'glyphicon glyphicon-download-alt\' style=\'cursor:pointer;\' onClick=\'window.open(\"'+file["r_uri"] + '/' + file["fname"]+'\");\' />';
+			filecheckbox='<label><input type=\'checkbox\' data-path=\'' + file["r_uri"] + '\' data-name=\'' + file["fname"] + '\' /></label>';
 
-			item = '<td>' + fileicon + caption + '</td><td>' + fileSize( filesize ) + '</td><td>' + filedate + '</td><td>' + filedownload + '&nbsp;'+ filedel + '</td>';
+			item = '<td>' + filecheckbox + '</td><td>' + fileicon + caption + '</td><td>' + fileSize( filesize ) + '</td><td>' + filedate + '</td><td>' + filedownload + '&nbsp;'+ filedel + '</td>';
 		}
 		// Append a file entry or directory to the end of the list.
 		$("#list").append(
@@ -302,6 +304,65 @@ $(function() {
 			data.context.update({'progress': progress});
 		}
 	}).prop('disabled', !$.support.fileInput).parent().addClass($.support.fileInput ? undefined : 'disabled');
+
+	$('#selectAll').on('change', (event) => {
+		var checkboxes = $('#list input[type="checkbox"]');
+		for(var checkbox of checkboxes) checkbox.checked = event.target.checked;
+	}); 
+
+	$('#modalDeleteSelected').on('show.bs.modal', function (event) {
+		var checkboxes = $('#list input[type="checkbox"]');
+		
+		var files = [];
+		for(var checkbox of checkboxes) {
+			if(checkbox.checked) {
+				var name = $(checkbox).data('name');
+				var path = $(checkbox).data('path');
+				files.push({
+					html: '<li>'+name+'</li>',
+					name: name,
+					path: path
+				});
+			}
+		}
+
+		var modal = $(this);
+		modal.find('.modal-body ul').html($.map(files, (file) => file.html));
+		modal.find('button.btn-primary').data('files', files);
+	});
+	$('#modalDeleteSelected button.btn-primary').on('click', function(event) {
+		event.preventDefault();
+		var btn = $(event.currentTarget);
+		var files = btn.data('files');
+		$('#modalDeleteSelected').modal('hide');
+		
+		var requests = [];
+		for(var file of files) {
+			$.ajax({
+				url: "/upload.cgi?DEL=" + file.path + '/' + file.name,
+				success: function(html) {
+					html2="*"+html+"*";
+					if ( html2.indexOf("SUCCESS") ) {
+						$.notify({
+							title: 'File deleted successful',
+							message: '<br/>' + file.name
+						});
+					} else{
+						$.notify({
+							title: 'File delete failed !',
+							message: '<br/>' + file.name
+						},{
+							type: 'danger'
+						});
+						console.log("delete error");
+					}
+				},
+				async: false
+			})
+		}
+		getFileList(".");
+		
+	});
 
 	$('#modalDelete').on('show.bs.modal', function (event) {
 		var btn = $(event.relatedTarget);
